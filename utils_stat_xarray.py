@@ -12,7 +12,7 @@ def xr_mktrend(da,dim = 'time',sig = 0.05):
     ----------
     da: xarray.DataArray 
         DataArray of variable 
-    alpha: float
+    sig: float
         significance level (0.05 is the default)    
     
     Returns
