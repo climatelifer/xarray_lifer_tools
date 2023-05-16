@@ -1,5 +1,7 @@
 
 import xarray as xr 
+import numpy as np 
+import scipy.stats as sts 
 import pymannkendall as mk
 
 # Trend calculation as Sen's slope in xarray 
@@ -55,3 +57,25 @@ def xr_mktrend(da,dim = 'time',sig = 0.05):
     ds['intercept'] = dx[8]
     
     return ds
+
+# Pearson correlation and pvalue for xarray 
+
+def pcorr(x,y,skipnan = False):
+    if not skipnan:        
+        xx = x[~np.isnan(x) & ~np.isnan(y)]
+        yy = y[~np.isnan(x) & ~np.isnan(y)]
+    else: 
+        xx = x 
+        yy = y 
+    return sts.pearsonr(xx,yy)
+
+def xr_person(dx,dy,dim = 'time',skipnan = False):
+    r,p = xr.apply_ufunc(pcorr,dx,dy,
+                         input_core_dims=[[dim],[dim]],                         
+                         output_core_dims=[[],[]],
+                         kwargs={'skipnan':skipnan},
+                         vectorize=True)
+    ds = xr.Dataset()
+    ds['r'] = r
+    ds['pvalue'] = p
+    return ds 
